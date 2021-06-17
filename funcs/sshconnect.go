@@ -110,7 +110,6 @@ func Dossh(username, password, host, key string, cmdlist []string, port, timeout
 	case res = <-chSSH:
 		ch <- res
 	}
-	return
 }
 
 func dossh_session(username, password, host, key string, cmdlist []string, port int, cipherList []string, ch chan g.SSHResult) {
@@ -126,37 +125,22 @@ func dossh_session(username, password, host, key string, cmdlist []string, port 
 	}
 	defer session.Close()
 
-	cmdlist = append(cmdlist, "exit")
+	for _, cmd := range cmdlist {
+		out, err := session.Output(cmd)
+		if err != nil {
+			fmt.Println(err)
+			sshResult.Success = false
+			sshResult.Result = err.Error()
 
-	stdinBuf, _ := session.StdinPipe()
+			ch <- sshResult
+			return
+		}
 
-	var outbt, errbt bytes.Buffer
-	session.Stdout = &outbt
-
-	session.Stderr = &errbt
-	err = session.Shell()
-	if err != nil {
-		sshResult.Success = false
-		sshResult.Result = fmt.Sprintf("<%s>", err.Error())
-		ch <- sshResult
-		return
-	}
-	for _, c := range cmdlist {
-		c = c + "\n"
-		stdinBuf.Write([]byte(c))
-	}
-	session.Wait()
-	if errbt.String() != "" {
-		sshResult.Success = false
-		sshResult.Result = errbt.String()
-		ch <- sshResult
-	} else {
 		sshResult.Success = true
-		sshResult.Result = outbt.String()
+		sshResult.Result = string(out)
+
 		ch <- sshResult
 	}
-
-	return
 }
 
 func dossh_run(username, password, host, key string, cmdlist []string, port int, cipherList []string, ch chan g.SSHResult) {

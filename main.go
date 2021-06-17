@@ -7,8 +7,6 @@ import (
 	"log"
 	"os"
 
-	"time"
-
 	"github.com/daqing/multissh/funcs"
 	"github.com/daqing/multissh/g"
 )
@@ -121,8 +119,6 @@ func main() {
 
 	chLimit := make(chan bool, *numLimit) //控制并发访问量
 	chs := make([]chan g.SSHResult, len(sshHosts))
-	startTime := time.Now()
-	log.Println("Multissh start")
 	limitFunc := func(chLimit chan bool, ch chan g.SSHResult, host g.SSHHost) {
 		funcs.Dossh(host.Username, host.Password, host.Host, host.Key, host.CmdList, host.Port, *timeLimit, cipherList, host.LinuxMode, ch)
 		<-chLimit
@@ -139,9 +135,7 @@ func main() {
 			sshResults = append(sshResults, res)
 		}
 	}
-	endTime := time.Now()
-	log.Printf("Multissh finished. Process time %s. Number of active ip is %d", endTime.Sub(startTime), len(sshHosts))
-	//gu
+
 	if *outTxt {
 		for _, sshResult := range sshResults {
 			err = g.WriteIntoTxt(sshResult, *fileLocate)
@@ -161,8 +155,7 @@ func main() {
 		return
 	}
 	for _, sshResult := range sshResults {
-		fmt.Println("host: ", sshResult.Host)
-		fmt.Println("========= Result =========")
+		fmt.Printf("# host: %s\n", sshResult.Host)
 		fmt.Println(sshResult.Result)
 	}
 
