@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shanghai-edu/multissh/g"
+	"github.com/daqing/multissh/g"
 	"golang.org/x/crypto/ssh"
 )
 

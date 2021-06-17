@@ -9,8 +9,8 @@ import (
 
 	"time"
 
-	"github.com/shanghai-edu/multissh/funcs"
-	"github.com/shanghai-edu/multissh/g"
+	"github.com/daqing/multissh/funcs"
+	"github.com/daqing/multissh/g"
 )
 
 func main() {
